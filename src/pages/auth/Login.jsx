@@ -4,7 +4,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom';
 
-function Register() {
+function Login() {
 
     const siteKey = import.meta.env.VITE_SITE_KEY
     console.log(siteKey)
@@ -12,7 +12,6 @@ function Register() {
     // initialize the react-hook-form
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
-            username: "",
             email: "",
             password: ""
         }
@@ -82,28 +81,18 @@ function Register() {
                             <span>Sign up to continue</span>
                         </div>
                         <form className='flex flex-col gap-2 mt-3' onSubmit={handleSubmit(onSubmit)}>
-                            {/* username input field */}
-                            <div className="Forusername m-auto w-full px-3">
-                                <input
-                                    className="text-[1vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
-                                    placeholder="Enter Your Username"
-                                    type="text"
-                                    {...register("username", {
-                                        required: "username is required",
-                                    })}
-                                />
-                                <p className="text-sm sm:text-[1vw] text-red-500">
-                                    {errors.username?.message}
-                                </p>
-                            </div>
                             {/* email input field */}
                             <div className="Foremail m-auto w-full px-3">
                                 <input
                                     className="text-[1vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
                                     placeholder="Enter Your Email"
-                                    type="text"
+                                    type="email"
                                     {...register("email", {
                                         required: "email is required",
+                                        pattern: {
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: "Invalid email address"
+                                        }
                                     })}
                                 />
                                 <p className="text-sm sm:text-[1vw] text-red-500">
@@ -115,7 +104,7 @@ function Register() {
                                 <input
                                     className="text-[1vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
                                     placeholder="Enter Your Password"
-                                    type="text"
+                                    type="password"
                                     {...register("password", {
                                         required: "password is required",
                                     })}
@@ -124,10 +113,14 @@ function Register() {
                                     {errors.password?.message}
                                 </p>
                             </div>
-                            <div className="captcha-wrapper w-full flex justify-center">
-                                <ReCAPTCHA  sitekey={siteKey} onChange={handleRecaptchaChange}
-                                />
+                            <div
+                                className="captcha-wrapper w-full flex justify-center"
+                            >
+                                <ReCAPTCHA size="compact"
+                                sitekey={siteKey} onChange={handleRecaptchaChange} />
                             </div>
+
+
                             <div className="termsandconditions-wrapper text-[1vw] px-3">
                                 <span>By signing up, I accept the Atlassian Cloud Terms of Service and acknowledge the Privacy Policy.</span>
                             </div>
@@ -151,4 +144,4 @@ function Register() {
     )
 }
 
-export default Register
+export default Login
