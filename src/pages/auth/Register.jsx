@@ -1,8 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
+import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form'
 
 function Register() {
+
+    const siteKey = import.meta.env.VITE_SITE_KEY
+    console.log(siteKey)
 
     // initialize the react-hook-form
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -13,10 +17,15 @@ function Register() {
         }
     });
 
+    // handle register
     const onSubmit = (RegisteredData) => {
         console.log(RegisteredData);
     }
 
+    // handle captcha
+    const handleRecaptchaChange = (value) => {
+        console.log("Captcha value:", value);
+    }
 
     return (
         <>
@@ -114,6 +123,8 @@ function Register() {
                                     {errors.password?.message}
                                 </p>
                             </div>
+                            <ReCAPTCHA sitekey={siteKey} onChange={handleRecaptchaChange}
+                            />
                             {/* Submit button for the form */}
                             <button
                                 className=""
