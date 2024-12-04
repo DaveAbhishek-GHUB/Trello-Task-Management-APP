@@ -14,7 +14,7 @@ function Header() {
     }
     return (
         <>
-            <div className="main-header-container w-full h-[3vw] flex justify-between items-center border-[#1F2937] border-b-2 p-5">
+            <div className="main-header-container w-[100vw] h-[3vw] flex justify-between items-center border-[#1F2937] border-b-2 p-5">
                 <div className="logo">
                     <svg
                         viewBox="0 0 94 32"

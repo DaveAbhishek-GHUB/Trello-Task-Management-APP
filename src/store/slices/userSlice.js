@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
-// Initial state of the user slice
 const initialState = {
   user: [],
   Loggedin: null,
@@ -11,7 +10,6 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    // Register a new user
     RegisterUser: (state, action) => {
       const { username, email, password } = action.payload;
       const newUser = {
@@ -25,7 +23,6 @@ const userSlice = createSlice({
       state.Loggedin = email;
     },
 
-    // Log in an existing user
     LoginUser: (state, action) => {
       const { email, password } = action.payload;
       const userForLogin = state.user.find(
@@ -39,7 +36,6 @@ const userSlice = createSlice({
       }
     },
 
-    // Create a new board
     CreateBoard: (state, action) => {
       const { boardName } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -53,7 +49,6 @@ const userSlice = createSlice({
       }
     },
 
-    // Create a new list in a particular board
     CreateList: (state, action) => {
       const { boardID, listname } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -70,7 +65,6 @@ const userSlice = createSlice({
       }
     },
 
-    // Add a new card to a list in a particular board
     AddCard: (state, action) => {
       const { boardID, listID, cardname } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -79,13 +73,48 @@ const userSlice = createSlice({
         if (board) {
           const list = board.lists.find((list) => list.id === listID);
           if (list) {
-            list.cards.push(cardname);
+            const newCard = {
+              id: list.cards.length + 1,
+              name: cardname,
+              description: "",
+            };
+            list.cards.push(newCard);
           }
         }
       }
     },
 
-    // Log out the current user
+    UpdateCardDescription: (state, action) => {
+      const { boardID, listID, cardID, description } = action.payload;
+      const user = state.user.find((user) => user.email === state.Loggedin);
+      if (user) {
+        const board = user.boards.find((board) => board.id === boardID);
+        if (board) {
+          const list = board.lists.find((list) => list.id === listID);
+          if (list) {
+            const card = list.cards.find((card) => card.id === cardID);
+            if (card) {
+              card.description = description;
+            }
+          }
+        }
+      }
+    },
+
+    DeleteCard: (state, action) => {
+      const { boardID, listID, cardID } = action.payload;
+      const user = state.user.find((user) => user.email === state.Loggedin);
+      if (user) {
+        const board = user.boards.find((board) => board.id === boardID);
+        if (board) {
+          const list = board.lists.find((list) => list.id === listID);
+          if (list) {
+            list.cards = list.cards.filter((card) => card.id !== cardID);
+          }
+        }
+      }
+    },
+
     logout: (state) => {
       state.Loggedin = null;
     },
@@ -98,6 +127,8 @@ export const {
   CreateBoard,
   CreateList,
   AddCard,
+  UpdateCardDescription,
+  DeleteCard,
   logout,
 } = userSlice.actions;
 
