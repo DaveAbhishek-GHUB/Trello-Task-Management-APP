@@ -1,10 +1,18 @@
 /* eslint-disable no-unused-vars */
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { RegisterUser } from '../../store/slices/userSlice';
 
 function Register() {
+    const users = useSelector((state) => state.user?.user);
+    useEffect
+    const loggedinUser = useSelector((state)=> state.user?.Loggedin);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const siteKey = import.meta.env.VITE_SITE_KEY
     console.log(siteKey)
@@ -20,7 +28,8 @@ function Register() {
 
     // handle register
     const onSubmit = (RegisteredData) => {
-        console.log(RegisteredData);
+        dispatch(RegisterUser(RegisteredData));
+        navigate("/")
     }
 
     // handle captcha
@@ -124,10 +133,16 @@ function Register() {
                                     {errors.password?.message}
                                 </p>
                             </div>
-                            <div className="captcha-wrapper w-full flex justify-center">
-                                <ReCAPTCHA  sitekey={siteKey} onChange={handleRecaptchaChange}
+                            {/* <div
+                                className="captcha-wrapper w-full flex justify-center"
+                            >
+                                <ReCAPTCHA
+                                    size="normal"
+                                    sitekey={siteKey}
+                                    onChange={handleRecaptchaChange}
+                                    style={{ transform: 'scale(0.85)', transformOrigin: '0 0' }}
                                 />
-                            </div>
+                            </div> */}
                             <div className="termsandconditions-wrapper text-[1vw] px-3">
                                 <span>By signing up, I accept the Atlassian Cloud Terms of Service and acknowledge the Privacy Policy.</span>
                             </div>
@@ -141,7 +156,7 @@ function Register() {
                                 </button>
                             </div>
                             <div className="login-navigator-wrapper text-[1vw] px-3 w-full flex justify-center">
-                                <span>If you already have an account,<Link className='text-blue-400'>login</Link></span>
+                                <span>If you already have an account,<Link className='text-blue-400' to="/login">login</Link></span>
                             </div>
                         </form>
                     </div>

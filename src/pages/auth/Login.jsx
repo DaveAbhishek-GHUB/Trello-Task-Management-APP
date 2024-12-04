@@ -2,9 +2,14 @@
 import React from 'react'
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { LoginUser } from '../../store/slices/userSlice';
 
 function Login() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const loggedinUser = useSelector((state)=> state.user?.Loggedin);
 
     const siteKey = import.meta.env.VITE_SITE_KEY
     console.log(siteKey)
@@ -19,7 +24,10 @@ function Login() {
 
     // handle register
     const onSubmit = (RegisteredData) => {
-        console.log(RegisteredData);
+        dispatch(LoginUser(RegisteredData));
+        if(loggedinUser !== null){
+            navigate("/")
+        }
     }
 
     // handle captcha
@@ -113,13 +121,16 @@ function Login() {
                                     {errors.password?.message}
                                 </p>
                             </div>
-                            <div
+                            {/* <div
                                 className="captcha-wrapper w-full flex justify-center"
                             >
-                                <ReCAPTCHA size="compact"
-                                sitekey={siteKey} onChange={handleRecaptchaChange} />
-                            </div>
-
+                                <ReCAPTCHA
+                                    size="normal"
+                                    sitekey={siteKey}
+                                    onChange={handleRecaptchaChange}
+                                    style={{ transform: 'scale(0.85)', transformOrigin: '0 0' }}
+                                />
+                            </div> */}
 
                             <div className="termsandconditions-wrapper text-[1vw] px-3">
                                 <span>By signing up, I accept the Atlassian Cloud Terms of Service and acknowledge the Privacy Policy.</span>
@@ -134,7 +145,7 @@ function Login() {
                                 </button>
                             </div>
                             <div className="login-navigator-wrapper text-[1vw] px-3 w-full flex justify-center">
-                                <span>If you already have an account,<Link className='text-blue-400'>login</Link></span>
+                                <span>If you already have an account,<Link className='text-blue-400' to="/register">Register</Link></span>
                             </div>
                         </form>
                     </div>
