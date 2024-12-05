@@ -111,7 +111,7 @@ function HomePage() {
   return (
     <>
       <Header />
-      {userboards.length > 0 ? (        
+      {userboards?.length > 0 ? (        
       <div className="main-homepage-wrapper w-full min-h-screen flex bg-blue-50 relative">
         {isCardEdit && (
           <div className="Edit-section-wrapper w-[80vw] h-[40vw] bg-white absolute top-[6vw] left-[18vw] rounded-xl border-2 max-md:w-[90vw] max-md:left-[5vw] max-sm:w-full max-sm:left-0">
