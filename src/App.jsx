@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Route, Routes } from "react-router-dom"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"

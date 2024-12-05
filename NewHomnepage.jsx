@@ -4,14 +4,13 @@ import Header from "../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import createBoard from '../assets/images/Create_a_boardPNG-removebg-preview.png'
-
 import {
   CreateBoard,
   CreateList,
   AddCard,
   UpdateCardDescription,
   DeleteCard,
+  SetBoardID,
 } from "../store/slices/userSlice";
 
 function HomePage() {
@@ -25,7 +24,7 @@ function HomePage() {
   const [isAdBoard, setIsAdBoard] = useState(false);
   const [isAddCard, setIsAddCard] = useState(false);
   // const [boardId, setBoardId] = useState(null);
-  const boardId = useSelector((state) => state.user.boardID);
+  const boardId = useSelector((state) => state.user.boardID)
   const [listId, setListId] = useState(null);
   const [editCard, setEditCard] = useState(null);
   const [isCardEdit, setIsCardEdit] = useState(false);
@@ -111,7 +110,6 @@ function HomePage() {
   return (
     <>
       <Header />
-      {userboards.length > 0 ? (        
       <div className="main-homepage-wrapper w-full min-h-screen flex bg-blue-50 relative">
         {isCardEdit && (
           <div className="Edit-section-wrapper w-[80vw] h-[40vw] bg-white absolute top-[6vw] left-[18vw] rounded-xl border-2 max-md:w-[90vw] max-md:left-[5vw] max-sm:w-full max-sm:left-0">
@@ -175,20 +173,9 @@ function HomePage() {
                       className="text-[1vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
                       placeholder="Enter Card Description"
                       type="text"
-                      defaultValue={editCard.description} 
+                      defaultValue={editCard.description} // Ensure this is set
                       {...register("carddescription", {
-                        required: "carddescription is required",
-                        minLength: {
-                          value: 1,
-                          message: "carddescription must not be empty",
-                        },
-                        maxLength: {
-                          value: 255,
-                          message: "You can add upto 255 words"
-                        },
-                        validate: (value) =>
-                          value.trim().length > 0 ||
-                          "carddescription cannot be just whitespace",
+                        required: "Card description is required...",
                       })}
                     />
                     <p className="text-sm sm:text-[1vw] text-red-500">
@@ -278,91 +265,128 @@ function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="list-wrapper w-full h-[60vw] flex gap-[1.7vw] p-4 overflow-auto max-md:flex-col max-md:h-auto">
+            <div className="add-list-button-wrapper p-4 border-b border-blue-200 flex items-center">
+              {isAddList === false ? (
+                <button
+                  onClick={() => setIsAddList(true)}
+                  className="text-base bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Add List
+                </button>
+              ) : (
+                <form
+                  className="w-full flex flex-row-reverse justify-center"
+                  onSubmit={handleSubmit(onSubmitList)}
+                >
+                  <div className="Forlistname m-auto w-full px-3">
+                    <input
+                      className="text-[1vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
+                      placeholder="Enter New Listname"
+                      type="text"
+                      {...register("listname", {
+                        required: "Enter a list name",
+                      })}
+                    />
+                    <p className="text-sm sm:text-[1vw] text-red-500">
+                      {errors.listname?.message}
+                    </p>
+                  </div>
+                  <button
+                    type="submit"
+                    className="text-base bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Create
+                  </button>
+                </form>
+              )}
+            </div>
+            <div className="list-wrapper w-full h-[60vw] flex gap-[1.7vw] p-4 overflow-scroll max-md:flex-col max-md:h-auto">
               {updateBoard ? (
                 lists.map((list) => (
                   <div key={list.id} className="inner-list-wrapper">
-                    <div className="list w-[18vw] bg-blue-800 rounded-xl shadow-lg max-md:w-full">
-                      <div className="list-heading-wrapper flex items-center justify-between text-white text-base px-4 py-3 border-b border-blue-700">
-                        <span className="font-semibold truncate">
-                          {list.name}
-                        </span>
+                    <div className="list w-[18vw] bg-blue-800 rounded-xl shadow-md max-md:w-full">
+                      <div className="list-heading-wrapper text-white text-base px-4 py-2 border-b border-blue-700">
+                        <span className="font-semibold">{list.name}</span>
                         <button
                           onClick={() => {
                             setListId(list.id);
                             setIsAddCard(true);
                           }}
-                          className="text-sm bg-blue-700 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors"
+                          className="text-sm bg-blue-700 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition-colors ml-2"
                         >
                           Add Card
                         </button>
                       </div>
-                      <div className="card px-4 py-3 flex flex-col gap-2.5">
-                        {list.cards.map((card) => (
+                      <div className="card px-4 py-3 flex flex-col gap-2">
+                        {list.cards.map((card, index) => (
                           <div
-                            key={card.id}
-                            className="card py-2.5 bg-white rounded-xl text-black px-4 hover:bg-gray-50 transition-colors text-sm flex justify-between items-center shadow-sm"
+                            key={index}
+                            className="card py-2 border bg-white rounded-xl text-black px-3 hover:bg-gray-50 transition-colors text-[1vw] flex justify-between items-center"
                           >
-                            <button
-                              onClick={() => handleEditCard(card)}
-                              className="text-left flex-1 truncate hover:text-blue-800"
-                            >
-                              {card.name}
+                            <button onClick={() => handleEditCard(card)}>
+                              <span>{card.name}</span>
                             </button>
                             <button
                               onClick={() => handleDeleteCard(card.id)}
-                              className="text-gray-400 hover:text-red-500 transition-colors ml-2"
-                              aria-label="Delete card"
+                              className="text-red-500 hover:text-red-700 transition-colors"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
-                                width={20}
-                                height={20}
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
+                                width={24}
+                                height={24}
+                                color={"#000000"}
+                                fill={"none"}
                               >
-                                <path d="M19.5 5.5L18.8803 15.5251C18.7219 18.0864 18.6428 19.3671 18.0008 20.2879C17.6833 20.7431 17.2747 21.1273 16.8007 21.416C15.8421 22 14.559 22 11.9927 22C9.42312 22 8.1383 22 7.17905 21.4149C6.7048 21.1257 6.296 20.7408 5.97868 20.2848C5.33688 19.3626 5.25945 18.0801 5.10461 15.5152L4.5 5.5" />
-                                <path d="M3 5.5H21M16.0557 5.5L15.3731 4.09173C14.9196 3.15626 14.6928 2.68852 14.3017 2.39681C14.215 2.3321 14.1231 2.27454 14.027 2.2247C13.5939 2 13.0741 2 12.0345 2C10.9688 2 10.436 2 9.99568 2.23412C9.8981 2.28601 9.80498 2.3459 9.71729 2.41317C9.32164 2.7167 9.10063 3.20155 8.65861 4.17126L8.05292 5.5" />
-                                <path d="M9.5 16.5L9.5 10.5" />
-                                <path d="M14.5 16.5L14.5 10.5" />
+                                <path
+                                  d="M19.5 5.5L18.8803 15.5251C18.7219 18.0864 18.6428 19.3671 18.0008 20.2879C17.6833 20.7431 17.2747 21.1273 16.8007 21.416C15.8421 22 14.559 22 11.9927 22C9.42312 22 8.1383 22 7.17905 21.4149C6.7048 21.1257 6.296 20.7408 5.97868 20.2848C5.33688 19.3626 5.25945 18.0801 5.10461 15.5152L4.5 5.5"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                                <path
+                                  d="M3 5.5H21M16.0557 5.5L15.3731 4.09173C14.9196 3.15626 14.6928 2.68852 14.3017 2.39681C14.215 2.3321 14.1231 2.27454 14.027 2.2247C13.5939 2 13.0741 2 12.0345 2C10.9688 2 10.436 2 9.99568 2.23412C9.8981 2.28601 9.80498 2.3459 9.71729 2.41317C9.32164 2.7167 9.10063 3.20155 8.65861 4.17126L8.05292 5.5"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                                <path
+                                  d="M9.5 16.5L9.5 10.5"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                                <path
+                                  d="M14.5 16.5L14.5 10.5"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
                               </svg>
                             </button>
                           </div>
                         ))}
                         {isAddCard && listId === list.id && (
                           <form
-                            className="w-full flex gap-2 items-start mt-2"
+                            className="w-full flex flex-row-reverse justify-center mt-2"
                             onSubmit={handleSubmit(onSubmitCard)}
                           >
-                            <div className="flex-1">
+                            <div className="Forcardname m-auto w-full px-3">
                               <input
-                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Enter card name"
+                                className="text-[1vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
+                                placeholder="Enter New Cardname"
                                 type="text"
                                 {...register("cardname", {
-                                  required: "Card name is required",
-                                  minLength: {
-                                    value: 1,
-                                    message: "Card name must not be empty",
-                                  },
-                                  validate: (value) =>
-                                    value.trim().length > 0 ||
-                                    "Card name cannot be just whitespace",
+                                  required: "Enter a card name",
                                 })}
                               />
-
-                              {errors.cardname && (
-                                <p className="text-xs text-red-500 mt-1">
-                                  {errors.cardname.message}
-                                </p>
-                              )}
+                              <p className="text-sm sm:text-[1vw] text-red-500">
+                                {errors.cardname?.message}
+                              </p>
                             </div>
                             <button
                               type="submit"
-                              className="text-sm bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+                              className="text-base bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                             >
                               Add
                             </button>
@@ -373,8 +397,8 @@ function HomePage() {
                   </div>
                 ))
               ) : (
-                <div className="create-list-heading text-lg font-medium text-gray-600">
-                  First create a list
+                <div className="create-list-heading">
+                  <span>First Create a list</span>
                 </div>
               )}
             </div>
@@ -385,11 +409,6 @@ function HomePage() {
           </div>
         )}
       </div>
-      ) : (
-        <div className="Create-board-section w-full h-full flex justify-center items-center">
-          <img src={createBoard} alt="" />
-        </div>
-      )}
     </>
   );
 }

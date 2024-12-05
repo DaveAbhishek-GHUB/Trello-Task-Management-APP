@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 const initialState = {
   user: [],
   Loggedin: null,
+  boardID: 1
 };
 
 const userSlice = createSlice({
@@ -35,6 +36,8 @@ const userSlice = createSlice({
         toast.error("User not Found, Register First!");
       }
     },
+
+    
 
     CreateBoard: (state, action) => {
       const { boardName } = action.payload;
@@ -115,6 +118,12 @@ const userSlice = createSlice({
       }
     },
 
+    SetBoardID: (state, action) => {
+      const { id } = action.payload;
+      state.boardID = id
+      console.log(state.boardID);
+    },
+
     logout: (state) => {
       state.Loggedin = null;
     },
@@ -129,6 +138,7 @@ export const {
   AddCard,
   UpdateCardDescription,
   DeleteCard,
+  SetBoardID,
   logout,
 } = userSlice.actions;
 
