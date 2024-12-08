@@ -1,11 +1,10 @@
-/* eslint-disable no-unused-vars */
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
 const initialState = {
   user: [],
   Loggedin: null,
-  boardID: 1,
+  boardID: 1
 };
 
 const userSlice = createSlice({
@@ -116,41 +115,35 @@ const userSlice = createSlice({
         }
       }
     },
-    // Add this reducer to your userSlice reducers
-    MoveCard: (state, action) => {
-      const {
-        boardID,
-        sourceListID,
-        destinationListID,
-        sourceIndex,
-        destinationIndex,
-      } = action.payload;
-    
-      const user = state.user.find((user) => user.email === state.Loggedin);
-      if (!user) return;
-    
-      const board = user.boards.find((board) => board.id === boardID);
-      if (!board) return;
-    
+
+    // Add this to your userSlice.js reducers
+MoveCard: (state, action) => {
+  const { boardID, sourceListID, destinationListID, cardID } = action.payload;
+  const user = state.user.find((user) => user.email === state.Loggedin);
+  
+  if (user) {
+    const board = user.boards.find((board) => board.id === boardID);
+    if (board) {
       const sourceList = board.lists.find((list) => list.id === sourceListID);
       const destinationList = board.lists.find((list) => list.id === destinationListID);
-    
-      if (!sourceList || !destinationList) return;
-    
-      // Create a copy of the card being moved
-      const [movedCard] = sourceList.cards.splice(sourceIndex, 1);
       
-      // Insert the card copy at the new position
-      destinationList.cards.splice(destinationIndex, 0, {
-        ...movedCard,
-        id: movedCard.id // Maintain the same card ID
-      });
-    },
-    
+      if (sourceList && destinationList) {
+        // Find the card to move
+        const cardToMove = sourceList.cards.find((card) => card.id === cardID);
+        
+        // Remove card from source list
+        sourceList.cards = sourceList.cards.filter((card) => card.id !== cardID);
+        
+        // Add card to destination list
+        destinationList.cards.push(cardToMove);
+      }
+    }
+  }
+},
 
     SetBoardID: (state, action) => {
       const { id } = action.payload;
-      state.boardID = id;
+      state.boardID = id
       console.log(state.boardID);
     },
 
@@ -170,7 +163,7 @@ export const {
   DeleteCard,
   SetBoardID,
   MoveCard,
-  logout,
+  logout
 } = userSlice.actions;
 
 export default userSlice.reducer;

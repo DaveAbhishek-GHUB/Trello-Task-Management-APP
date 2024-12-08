@@ -5,7 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import createBoard from "../assets/images/Create_a_boardPNG-removebg-preview.png";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DndContext, closestCorners } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import DraggableCard from "../components/DraggableCard";
+import { MoveCard } from "../store/slices/userSlice";
 
 import {
   CreateBoard,
@@ -16,6 +22,51 @@ import {
 } from "../store/slices/userSlice";
 
 function HomePage() {
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    
+    if (!over) return;
+
+    // Extract list and card IDs from drag event
+    const activeListId = active.data.current?.listId;
+    const overListId = over.data.current?.listId;
+    const activeCardId = active.id;
+    const overCardId = over.id;
+
+    // Ensure we're dragging cards within the same board
+    if (activeListId && overListId) {
+      if (activeListId === overListId) {
+        // Reorder within the same list
+        const activeIndex = lists
+          .find(list => list.id === activeListId)
+          .cards.findIndex(card => card.id === activeCardId);
+        
+        const overIndex = lists
+          .find(list => list.id === overListId)
+          .cards.findIndex(card => card.id === overCardId);
+
+        dispatch(MoveCard({
+          boardID: boardId,
+          sourceListID: activeListId,
+          destinationListID: activeListId,
+          cardID: activeCardId,
+          oldIndex: activeIndex,
+          newIndex: overIndex
+        }));
+      } else {
+        // Move between lists
+        dispatch(MoveCard({
+          boardID: boardId,
+          sourceListID: activeListId,
+          destinationListID: overListId,
+          cardID: activeCardId
+        }));
+      }
+    }
+  };
+  
+  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loggedinUser = useSelector((state) => state.user.Loggedin);
@@ -25,6 +76,7 @@ function HomePage() {
   const [isAddList, setIsAddList] = useState(false);
   const [isAdBoard, setIsAdBoard] = useState(false);
   const [isAddCard, setIsAddCard] = useState(false);
+  // const [boardId, setBoardId] = useState(null);
   const boardId = useSelector((state) => state.user.boardID);
   const [listId, setListId] = useState(null);
   const [editCard, setEditCard] = useState(null);
@@ -64,40 +116,6 @@ function HomePage() {
     dispatch(
       CreateList({ boardID: selectedBoardId, listname: ListData.listname })
     );
-  };
-
-  // Add this new function in your HomePage component
-  const onDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
-
-    // If there's no destination or if the card is dropped in the same position
-    if (
-      !destination ||
-      (destination.droppableId === source.droppableId &&
-        destination.index === source.index)
-    ) {
-      return;
-    }
-
-    // Find the card that was dragged
-    const sourceList = lists.find(
-      (list) => list.id === parseInt(source.droppableId)
-    );
-    const card = sourceList.cards.find(
-      (card) => card.id === parseInt(draggableId)
-    );
-
-    dispatch({
-      type: "user/MoveCard",
-      payload: {
-        boardID: selectedBoardId,
-        sourceListID: parseInt(source.droppableId),
-        destinationListID: parseInt(destination.droppableId),
-        sourceIndex: source.index,
-        destinationIndex: destination.index,
-        cardId: parseInt(draggableId),
-      },
-    });
   };
 
   const onSubmitCard = (CardData) => {
@@ -141,18 +159,6 @@ function HomePage() {
     dispatch(DeleteCard({ boardID: boardId, listID: listId, cardID: cardId }));
     console.log("card ID", cardId);
   };
-
-  const getItemStyle = (isDragging, draggableStyle) => ({
-    background: isDragging ? "#f3f4f6" : "white",
-    cursor: "grab",
-    borderRadius: "0.75rem",
-    padding: "0.625rem 1rem",
-    marginBottom: "0.625rem",
-    boxShadow: isDragging
-      ? "0 0 10px rgba(0,0,0,0.1)"
-      : "0 1px 3px rgba(0,0,0,0.1)",
-    ...draggableStyle,
-  });
 
   return (
     <>
@@ -324,65 +330,46 @@ function HomePage() {
                   </div>
                 </div>
               </div>
-              <DragDropContext onDragEnd={onDragEnd}>
+              <DndContext
+                collisionDetection={closestCorners}
+                onDragEnd={handleDragEnd}
+              >
                 <div className="list-wrapper w-full h-[60vw] flex gap-[1.7vw] p-4 overflow-auto max-md:flex-col max-md:h-auto">
-                  {updateBoard ? (
-                    lists.map((list) => (
-                      <div key={list.id} className="inner-list-wrapper">
-                        <div className="list w-[18vw] bg-blue-800 rounded-xl shadow-lg max-md:w-full">
-                          <div className="list-heading-wrapper flex items-center justify-between text-white text-base px-4 py-3 border-b border-blue-700">
-                            <span className="font-semibold truncate">
-                              {list.name}
-                            </span>
-                            <button
-                              onClick={() => {
-                                setListId(list.id);
-                                setIsAddCard(true);
-                              }}
-                              className="text-sm bg-blue-700 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors"
+                  {updateBoard
+                    ? lists.map((list) => (
+                        <div key={list.id} className="inner-list-wrapper">
+                          <div className="list w-[18vw] bg-blue-800 rounded-xl shadow-lg max-md:w-full">
+                            <div className="list-heading-wrapper">
+                              <div className="list-heading-wrapper flex items-center justify-between text-white text-base px-4 py-3 border-b border-blue-700">
+                                <span className="font-semibold truncate">
+                                  {list.name}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setListId(list.id);
+                                    setIsAddCard(true);
+                                  }}
+                                  className="text-sm bg-blue-700 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors"
+                                >
+                                  Add Card
+                                </button>
+                              </div>
+                            </div>
+                            <SortableContext
+                              items={list.cards.map((card) =>
+                                card.id.toString()
+                              )}
+                              strategy={verticalListSortingStrategy}
                             >
-                              Add Card
-                            </button>
-                          </div>
-                          <Droppable droppableId={list.id.toString()}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                className="card px-4 py-3 flex flex-col gap-2.5"
-                              >
-                                {list.cards.map((card, index) => (
-                                  <Draggable
+                              <div className="card px-4 py-3 flex flex-col gap-2.5">
+                                {list.cards.map((card) => (
+                                  <DraggableCard
                                     key={card.id}
-                                    draggableId={card.id.toString()}
-                                    index={index}
-                                  >
-                                    {(provided) => (
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        className="card py-2.5 bg-white rounded-xl text-black px-4 hover:bg-gray-50 transition-colors text-sm flex justify-between items-center shadow-sm"
-                                      >
-                                        <button
-                                          onClick={() => handleEditCard(card)}
-                                          className="text-left flex-1 truncate hover:text-blue-800"
-                                        >
-                                          {card.name}
-                                        </button>
-                                        <button
-                                          onClick={() =>
-                                            handleDeleteCard(card.id)
-                                          }
-                                          className="text-gray-400 hover:text-red-500 transition-colors ml-2"
-                                        >
-                                          {/* Your existing delete icon SVG */}
-                                        </button>
-                                      </div>
-                                    )}
-                                  </Draggable>
+                                    card={card}
+                                    onEdit={handleEditCard}
+                                    onDelete={handleDeleteCard}
+                                  />
                                 ))}
-                                {provided.placeholder}
                                 {isAddCard && listId === list.id && (
                                   <form
                                     className="w-full flex gap-2 items-start mt-2"
@@ -405,7 +392,6 @@ function HomePage() {
                                             "Card name cannot be just whitespace",
                                         })}
                                       />
-
                                       {errors.cardname && (
                                         <p className="text-xs text-red-500 mt-1">
                                           {errors.cardname.message}
@@ -421,18 +407,13 @@ function HomePage() {
                                   </form>
                                 )}
                               </div>
-                            )}
-                          </Droppable>
+                            </SortableContext>
+                          </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="create-list-heading text-lg font-medium text-gray-600">
-                      First create a list
-                    </div>
-                  )}
+                      ))
+                    : null}
                 </div>
-              </DragDropContext>
+              </DndContext>
             </div>
           ) : (
             <div className="main-wrapper w-full text-[3vw] font-sans flex justify-center items-center">
