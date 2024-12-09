@@ -119,8 +119,8 @@ function Header() {
           </div>
 
           {/* Board selection dropdown */}
-          <div className="all-boards-wrapper">
-            <select onChange={handleBoardSelect} value={selectedBoardId || ""}>
+          <div className="all-boards-wrapper flex justify-center items-center">
+            <select className="text-[1.3vw] max-md:text-[2vw] max-sm:text-[2.5vw]" onChange={handleBoardSelect} value={selectedBoardId || ""}>
               <option value="">Select a Board</option>
               {userboards &&
                 userboards.map((board) => (
@@ -181,7 +181,7 @@ function Header() {
         <div className="logout-btn-wrapper w-[20vw] flex justify-center items-center">
           <button
             onClick={handleLogout}
-            className="border-white border-2 px-5 py-2.5 font-medium bg-blue-50 hover:text-red-600 text-red-500 rounded-lg text-sm"
+            className="border-white border-2 px-5 py-2.5 font-medium bg-blue-50 hover:text-red-600 text-red-500 rounded-lg text-[1vw] max-sm:text-[2vw]"
           >
             Logout
           </button>
