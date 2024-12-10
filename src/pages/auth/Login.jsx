@@ -35,7 +35,6 @@ function Login() {
     }
   };
 
-
   return (
     <>
       <div className="main-registerPage-container w-full min-h-screen relative bg-[#FAFBFC]">

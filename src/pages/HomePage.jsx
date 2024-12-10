@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import createBoard from "../assets/images/Create_a_boardPNG-removebg-preview.png";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Tooltip } from 'react-tooltip';
 import {
-  CreateBoard,
-  CreateList,
+
   AddCard,
   UpdateCardDescription,
   DeleteCard,
@@ -99,6 +99,7 @@ function HomePage() {
         cardname: CardData.cardname,
       })
     );
+    reset({ AddCard: "" });
   };
 
   // Handle card description submission
@@ -227,16 +228,6 @@ function HomePage() {
                 <span className="text-[2.5vw] max-md:text-[3.5vw] max-sm:text-[4.5vw] font-bold text-blue-800">
                   {updateBoard?.name || "Board Name"}
                 </span>
-                <div className="options-wrapper flex gap-3">
-                  <button className="text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                    Filter
-                  </button>
-                  <div className="profile-btn">
-                    <button className="p-2 bg-blue-800 text-white rounded-full hover:bg-blue-700 transition-colors">
-                      <ProfileBTN />
-                    </button>
-                  </div>
-                </div>
               </div>
               <DragDropContext onDragEnd={onDragEnd}>
                 <div className="list-wrapper w-full h-[60vw] flex gap-[1.7vw] p-4 overflow-auto max-md:flex-col max-md:h-auto">
@@ -281,11 +272,10 @@ function HomePage() {
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
                                           {...provided.dragHandleProps}
-                                          className={`card py-2.5 bg-white rounded-xl text-black px-4 ${
-                                            snapshot.isDragging
+                                          className={`card py-2.5 bg-white rounded-xl text-black px-4 ${snapshot.isDragging
                                               ? "opacity-50"
                                               : ""
-                                          } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
+                                            } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
                                         >
                                           <button
                                             onClick={() => {
