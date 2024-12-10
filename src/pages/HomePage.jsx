@@ -4,47 +4,49 @@ import Header from "../components/Header";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import createBoard from "../assets/images/Create_a_boardPNG-removebg-preview.png";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Tooltip } from 'react-tooltip';
-import {
 
+// Import Redux actions
+import {
   AddCard,
   UpdateCardDescription,
   DeleteCard,
 } from "../store/slices/userSlice";
+
+// Import assets
+import createBoard from "../assets/images/Create_a_boardPNG-removebg-preview.png";
 import CloseBTN from "../assets/svgs/CloseBTN";
 import CardIcon from "../assets/svgs/CardIcon";
 import CardDes from "../assets/svgs/CardDes";
-import ProfileBTN from "../assets/svgs/ProfileBTN";
 import DeleteBTN from "../assets/svgs/DeleteBTN";
 
 function HomePage() {
+  // Redux hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Selectors
   const loggedinUser = useSelector((state) => state.user.Loggedin);
   const user = useSelector((state) => state.user.user);
+  const boardId = useSelector((state) => state.user.boardID);
+  const selectedBoardId = useSelector((state) => state.user.boardID);
 
-  // State variables for managing UI states
+  // Local state
   const [listId, setListId] = useState(null);
   const [editCard, setEditCard] = useState(null);
-
   const [isAddList, setIsAddList] = useState(false);
   const [isAdBoard, setIsAdBoard] = useState(false);
   const [isAddCard, setIsAddCard] = useState(false);
-
   const [isCardEdit, setIsCardEdit] = useState(false);
-  const boardId = useSelector((state) => state.user.boardID);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
 
-  // Fetch user data and boards
+  // Get user data and boards
   const loggedinuserData = user.find((user) => user.email === loggedinUser);
   const userboards = loggedinuserData?.boards;
-  const selectedBoardId = useSelector((state) => state.user.boardID);
   const updateBoard = userboards?.find((board) => board.id === selectedBoardId);
   const lists = updateBoard?.lists;
 
-  // Form handling using react-hook-form
+  // Form handling
   const {
     register,
     handleSubmit,
@@ -59,17 +61,19 @@ function HomePage() {
     },
   });
 
-  // Redirect to register if user is not logged in
+  // Check authentication
   useEffect(() => {
     if (!loggedinUser) {
       navigate("/register");
     }
   }, [loggedinUser, navigate]);
 
+  // Handle drag and drop
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
+
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
@@ -89,7 +93,7 @@ function HomePage() {
     });
   };
 
-  // Handle card submission
+  // Handle card actions
   const onSubmitCard = (CardData) => {
     setIsAddCard(false);
     dispatch(
@@ -102,7 +106,6 @@ function HomePage() {
     reset({ AddCard: "" });
   };
 
-  // Handle card description submission
   const onSubmitDescription = (DescriptionData) => {
     dispatch(
       UpdateCardDescription({
@@ -117,7 +120,6 @@ function HomePage() {
     reset({ carddescription: "" });
   };
 
-  // Handle card editing
   const handleEditCard = (card) => {
     setEditCard(card);
     setIsCardEdit(true);
@@ -136,7 +138,6 @@ function HomePage() {
       })
     );
   };
-
   return (
     <>
       <Header />
@@ -272,10 +273,11 @@ function HomePage() {
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
                                           {...provided.dragHandleProps}
-                                          className={`card py-2.5 bg-white rounded-xl text-black px-4 ${snapshot.isDragging
+                                          className={`card py-2.5 bg-white rounded-xl text-black px-4 ${
+                                            snapshot.isDragging
                                               ? "opacity-50"
                                               : ""
-                                            } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
+                                          } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
                                         >
                                           <button
                                             onClick={() => {

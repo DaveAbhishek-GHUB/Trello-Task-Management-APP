@@ -1,17 +1,18 @@
-/* eslint-disable no-unused-vars */
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
+// Initial state for the user slice
 const initialState = {
-  user: [],
-  Loggedin: null,
-  boardID: 1,
+  user: [], // Array to store user data
+  Loggedin: null, // Track logged in user email
+  boardID: 1, // Current active board ID
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    // Register a new user
     RegisterUser: (state, action) => {
       const { username, email, password } = action.payload;
       const newUser = {
@@ -19,12 +20,13 @@ const userSlice = createSlice({
         username,
         email,
         password,
-        boards: [],
+        boards: [], // Initialize empty boards array for new user
       };
       state.user.push(newUser);
       state.Loggedin = email;
     },
 
+    // Login existing user
     LoginUser: (state, action) => {
       const { email, password } = action.payload;
       const userForLogin = state.user.find(
@@ -38,6 +40,7 @@ const userSlice = createSlice({
       }
     },
 
+    // Create a new board for logged in user
     CreateBoard: (state, action) => {
       const { boardName } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -45,12 +48,13 @@ const userSlice = createSlice({
         const newBoard = {
           id: user.boards.length + 1,
           name: boardName,
-          lists: [],
+          lists: [], // Initialize empty lists array for new board
         };
         user.boards.push(newBoard);
       }
     },
 
+    // Create a new list in specified board
     CreateList: (state, action) => {
       const { boardID, listname } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -60,13 +64,14 @@ const userSlice = createSlice({
           const newList = {
             id: board.lists.length + 1,
             name: listname,
-            cards: [],
+            cards: [], // Initialize empty cards array for new list
           };
           board.lists.push(newList);
         }
       }
     },
 
+    // Add a new card to specified list
     AddCard: (state, action) => {
       const { boardID, listID, cardname } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -86,6 +91,7 @@ const userSlice = createSlice({
       }
     },
 
+    // Update card description
     UpdateCardDescription: (state, action) => {
       const { boardID, listID, cardID, description } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -103,6 +109,7 @@ const userSlice = createSlice({
       }
     },
 
+    // Delete a card from list
     DeleteCard: (state, action) => {
       const { boardID, listID, cardID } = action.payload;
       const user = state.user.find((user) => user.email === state.Loggedin);
@@ -116,7 +123,8 @@ const userSlice = createSlice({
         }
       }
     },
-    // Add this reducer to your userSlice reducers
+
+    // Move card between lists
     MoveCard: (state, action) => {
       const {
         boardID,
@@ -125,38 +133,40 @@ const userSlice = createSlice({
         sourceIndex,
         destinationIndex,
       } = action.payload;
-    
+
       const user = state.user.find((user) => user.email === state.Loggedin);
       if (!user) return;
-    
+
       const board = user.boards.find((board) => board.id === boardID);
       if (!board) return;
-    
+
       const sourceList = board.lists.find((list) => list.id === sourceListID);
       const destinationList = board.lists.find((list) => list.id === destinationListID);
-    
+
       if (!sourceList || !destinationList) return;
-    
+
       // Remove card from source list
       const [removedCard] = sourceList.cards.splice(sourceIndex, 1);
-    
+
       // Add card to destination list
       destinationList.cards.splice(destinationIndex, 0, removedCard);
     },
-    
 
+    // Set active board ID
     SetBoardID: (state, action) => {
       const { id } = action.payload;
       state.boardID = id;
       console.log(state.boardID);
     },
 
+    // Logout user
     logout: (state) => {
       state.Loggedin = null;
     },
   },
 });
 
+// Export actions
 export const {
   RegisterUser,
   LoginUser,
@@ -170,4 +180,5 @@ export const {
   logout,
 } = userSlice.actions;
 
+// Export reducer
 export default userSlice.reducer;
