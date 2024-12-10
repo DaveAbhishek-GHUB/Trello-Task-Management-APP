@@ -66,36 +66,19 @@ function HomePage() {
     }
   }, [loggedinUser, navigate]);
 
-  // Handle list submission
-  const onSubmitList = (ListData) => {
-    setIsAddList(false);
-    dispatch(
-      CreateList({ boardID: selectedBoardId, listname: ListData.listname })
-    );
-  };
-
-  // Handle drag and drop functionality
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
-    // Check if the card is dropped in the same position or if there's no destination
+    // If there's no destination or the card is dropped in the same position
+    if (!destination) return;
+
     if (
-      !destination ||
-      (destination.droppableId === source.droppableId &&
-        destination.index === source.index)
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
     ) {
       return;
     }
 
-    // Find the card that was dragged
-    const sourceList = lists.find(
-      (list) => list.id === parseInt(source.droppableId)
-    );
-    const card = sourceList.cards.find(
-      (card) => card.id === parseInt(draggableId)
-    );
-
-    // Dispatch action to move the card
     dispatch({
       type: "user/MoveCard",
       payload: {
@@ -104,7 +87,6 @@ function HomePage() {
         destinationListID: parseInt(destination.droppableId),
         sourceIndex: source.index,
         destinationIndex: destination.index,
-        cardId: parseInt(draggableId),
       },
     });
   };
@@ -144,16 +126,18 @@ function HomePage() {
     reset({ carddescription: card.description || "" });
   };
 
-  // Handle board creation
-  const handleBoard = (BoardData) => {
-    setIsAdBoard(false);
-    dispatch(CreateBoard({ boardName: BoardData.boardname }));
-  };
-
-  // Handle card deletion
   const handleDeleteCard = (cardId) => {
-    dispatch(DeleteCard({ boardID: boardId, listID: listId, cardID: cardId }));
+    if (!boardId || !listId) return;
+    
+    dispatch(
+      DeleteCard({
+        boardID: boardId,
+        listID: listId,
+        cardID: cardId,
+      })
+    );
   };
+  
 
   return (
     <>
@@ -286,27 +270,35 @@ function HomePage() {
                               >
                                 {list.cards.map((card, index) => (
                                   <Draggable
-                                    key={card.id}
-                                    draggableId={card.id.toString()}
+                                    key={`${list.id}-${card.id}`}
+                                    draggableId={`${list.id}-${card.id}`}
                                     index={index}
                                   >
-                                    {(provided) => (
+                                    {(provided, snapshot) => (
                                       <div
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
-                                        className="card py-2.5 bg-white rounded-xl text-black px-4 hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm"
+                                        className={`card py-2.5 bg-white rounded-xl text-black px-4 ${snapshot.isDragging
+                                            ? "opacity-50"
+                                            : ""
+                                          } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
                                       >
                                         <button
-                                          onClick={() => handleEditCard(card)}
+                                          onClick={() => {
+                                            setListId(list.id);
+                                            handleEditCard(card);
+                                          }}
                                           className="text-left flex-1 truncate hover:text-blue-800"
                                         >
                                           {card.name}
                                         </button>
                                         <button
-                                          onClick={() =>
-                                            handleDeleteCard(card.id)
-                                          }
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setListId(list.id);
+                                            handleDeleteCard(card.id);
+                                          }}
                                           className="text-gray-400 hover:text-red-500 transition-colors ml-2"
                                         >
                                           <DeleteBTN />

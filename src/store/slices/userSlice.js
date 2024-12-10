@@ -137,16 +137,12 @@ const userSlice = createSlice({
     
       if (!sourceList || !destinationList) return;
     
-      // Create a copy of the card being moved
-      const [movedCard] = sourceList.cards.splice(sourceIndex, 1);
-      
-      // Insert the card copy at the new position
-      destinationList.cards.splice(destinationIndex, 0, {
-        ...movedCard,
-        id: movedCard.id // Maintain the same card ID
-      });
-    },
+      // Remove card from source list
+      const [removedCard] = sourceList.cards.splice(sourceIndex, 1);
     
+      // Add card to destination list
+      destinationList.cards.splice(destinationIndex, 0, removedCard);
+    },
 
     SetBoardID: (state, action) => {
       const { id } = action.payload;
