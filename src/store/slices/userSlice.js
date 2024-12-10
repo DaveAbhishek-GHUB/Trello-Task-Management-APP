@@ -143,6 +143,7 @@ const userSlice = createSlice({
       // Add card to destination list
       destinationList.cards.splice(destinationIndex, 0, removedCard);
     },
+    
 
     SetBoardID: (state, action) => {
       const { id } = action.payload;

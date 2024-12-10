@@ -69,9 +69,7 @@ function HomePage() {
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
-    // If there's no destination or the card is dropped in the same position
     if (!destination) return;
-
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
@@ -128,7 +126,7 @@ function HomePage() {
 
   const handleDeleteCard = (cardId) => {
     if (!boardId || !listId) return;
-    
+
     dispatch(
       DeleteCard({
         boardID: boardId,
@@ -137,7 +135,6 @@ function HomePage() {
       })
     );
   };
-  
 
   return (
     <>
@@ -243,9 +240,12 @@ function HomePage() {
               </div>
               <DragDropContext onDragEnd={onDragEnd}>
                 <div className="list-wrapper w-full h-[60vw] flex gap-[1.7vw] p-4 overflow-auto max-md:flex-col max-md:h-auto">
-                  {updateBoard ? (
+                  {lists &&
                     lists.map((list) => (
-                      <div key={list.id} className="inner-list-wrapper">
+                      <div
+                        key={`list-${list.id}`}
+                        className="inner-list-wrapper"
+                      >
                         <div className="list w-[23vw] bg-blue-800 rounded-xl shadow-lg max-md:w-full">
                           <div className="list-heading-wrapper flex items-center justify-between text-white text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] px-4 py-3 border-b border-blue-700">
                             <span className="font-semibold truncate text-[1vw] max-md:text-[2vw] max-sm:text-[2.5vw]">
@@ -268,45 +268,49 @@ function HomePage() {
                                 {...provided.droppableProps}
                                 className="card px-4 py-3 flex flex-col gap-2.5"
                               >
-                                {list.cards.map((card, index) => (
-                                  <Draggable
-                                    key={`${list.id}-${card.id}`}
-                                    draggableId={`${list.id}-${card.id}`}
-                                    index={index}
-                                  >
-                                    {(provided, snapshot) => (
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        className={`card py-2.5 bg-white rounded-xl text-black px-4 ${snapshot.isDragging
-                                            ? "opacity-50"
-                                            : ""
+                                {list.cards.map((card, index) => {
+                                  const uniqueCardId = `${list.id}-${card.id}-${index}`;
+                                  return (
+                                    <Draggable
+                                      key={uniqueCardId}
+                                      draggableId={uniqueCardId}
+                                      index={index}
+                                    >
+                                      {(provided, snapshot) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          className={`card py-2.5 bg-white rounded-xl text-black px-4 ${
+                                            snapshot.isDragging
+                                              ? "opacity-50"
+                                              : ""
                                           } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
-                                      >
-                                        <button
-                                          onClick={() => {
-                                            setListId(list.id);
-                                            handleEditCard(card);
-                                          }}
-                                          className="text-left flex-1 truncate hover:text-blue-800"
                                         >
-                                          {card.name}
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setListId(list.id);
-                                            handleDeleteCard(card.id);
-                                          }}
-                                          className="text-gray-400 hover:text-red-500 transition-colors ml-2"
-                                        >
-                                          <DeleteBTN />
-                                        </button>
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
+                                          <button
+                                            onClick={() => {
+                                              setListId(list.id);
+                                              handleEditCard(card);
+                                            }}
+                                            className="text-left flex-1 truncate hover:text-blue-800"
+                                          >
+                                            {card.name}
+                                          </button>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setListId(list.id);
+                                              handleDeleteCard(card.id);
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 transition-colors ml-2"
+                                          >
+                                            <DeleteBTN />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                  );
+                                })}
                                 {provided.placeholder}
                                 {isAddCard && listId === list.id && (
                                   <form
@@ -349,12 +353,7 @@ function HomePage() {
                           </Droppable>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <div className="create-list-heading text-[2vw] max-md:text-[3vw] max-sm:text-[4vw] font-medium text-gray-600">
-                      First create a list
-                    </div>
-                  )}
+                    ))}
                 </div>
               </DragDropContext>
             </div>
