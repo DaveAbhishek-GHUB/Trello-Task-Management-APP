@@ -170,6 +170,7 @@ function HomePage() {
                   >
                     <div className="Forcarddescription m-auto w-full px-3">
                       <input
+                        autoFocus
                         className="text-[2vw] max-md:text-[3vw] max-sm:text-[4vw] border-[#8590A1] rounded-md border-[1px] w-full p-2"
                         placeholder="Enter Card Description"
                         type="text"
@@ -263,6 +264,10 @@ function HomePage() {
                                 {list.cards.map((card, index) => {
                                   const uniqueCardId = `${list.id}-${card.id}-${index}`;
                                   return (
+                                    // In your card rendering section within Homepage.jsx, modify the Draggable card div:
+
+                                    // In Homepage.jsx, update your Draggable card section:
+
                                     <Draggable
                                       key={uniqueCardId}
                                       draggableId={uniqueCardId}
@@ -272,12 +277,12 @@ function HomePage() {
                                         <div
                                           ref={provided.innerRef}
                                           {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
+                                          {...provided.dragHandleProps} // Move this back to the main container
                                           className={`card py-2.5 bg-white rounded-xl text-black px-4 ${
                                             snapshot.isDragging
                                               ? "opacity-50"
                                               : ""
-                                          } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm`}
+                                          } hover:bg-gray-50 transition-colors text-[1.5vw] max-md:text-[2.5vw] max-sm:text-[3.5vw] flex justify-between items-center shadow-sm cursor-grab active:cursor-grabbing`}
                                         >
                                           <button
                                             onClick={() => {

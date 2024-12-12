@@ -78,7 +78,7 @@ function Header() {
       <div className="operations-wrapper w-[60vw] flex items-center justify-evenly relative">
         {/* Board Creation */}
         <div
-          className="board-section"
+          className="board-section cursor-pointer"
           onClick={() => setIsCreatingBoard(true)}
           data-tooltip-id="board-tooltip"
           data-tooltip-content="Create New Board"
@@ -95,6 +95,7 @@ function Header() {
               onSubmit={handleSubmit(onSubmitBoard)}
             >
               <input
+                autoFocus
                 className="p-2 border-2 rounded-lg"
                 {...register("boardname", {
                   required: "Board name is required",
@@ -128,7 +129,7 @@ function Header() {
         {/* Board Selection Dropdown */}
         <div className="all-boards-wrapper flex justify-center items-center">
           <select
-            className="text-[1.3vw] max-md:text-[2vw] max-sm:text-[2.5vw]"
+            className="text-[1.3vw] max-md:text-[2vw] max-sm:text-[2.5vw] cursor-pointer"
             onChange={handleBoardSelect}
             value={selectedBoardId || ""}
           >
@@ -144,7 +145,7 @@ function Header() {
 
         {/* List Creation */}
         <div
-          className="list-wrapper relative"
+          className="list-wrapper relative cursor-pointer"
           onClick={() => setIsCreatingList(!isCreatingList)}
           data-tooltip-id="list-tooltip"
           data-tooltip-content="Create New List"
@@ -164,6 +165,7 @@ function Header() {
               onSubmit={handleSubmit(onSubmitList)}
             >
               <input
+                autoFocus
                 className="p-2 border-2 rounded-lg"
                 {...register("listname", {
                   required: "List name is required",
