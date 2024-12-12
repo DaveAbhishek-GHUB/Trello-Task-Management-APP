@@ -103,7 +103,7 @@ function HomePage() {
         cardname: CardData.cardname,
       })
     );
-    reset({ AddCard: "" });
+    reset();
   };
 
   const onSubmitDescription = (DescriptionData) => {
