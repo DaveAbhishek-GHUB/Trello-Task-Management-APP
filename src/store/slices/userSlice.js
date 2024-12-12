@@ -162,6 +162,7 @@ const userSlice = createSlice({
     // Logout user
     logout: (state) => {
       state.Loggedin = null;
+      localStorage.clear();
     },
   },
 });
